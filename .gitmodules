@@ -1,0 +1,6 @@
+[submodule "src/picojson"]
+	path = src/picojson
+	url = https://github.com/kazuho/picojson.git
+[submodule "src/eigen"]
+	path = src/eigen
+	url = https://github.com/RLovelett/eigen.git
