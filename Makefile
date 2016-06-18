@@ -20,7 +20,7 @@ bin/model_rnn2.o: src/models/model_rnn2.cpp src/models/model_rnn2.h src/model_ab
 bin/encoder.o:	src/compression/encoder.cpp src/compression/encoder.h src/model_abstract.h
 	g++ $(CPPFLAGS) -c ./src/compression/encoder.cpp -o ./bin/encoder.o
 bin/decoder.o:	src/compression/decoder.cpp src/compression/decoder.h src/model_abstract.h
-	g++ $(CPPFLAGS) -std=c++11 -O3 -c ./src/compression/decoder.cpp -o ./bin/decoder.o
+	g++ $(CPPFLAGS) ./src/compression/decoder.cpp -o ./bin/decoder.o
 
 clean:
 	rm ./bin/*.o ./bin/test || true
