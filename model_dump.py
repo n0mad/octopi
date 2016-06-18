@@ -46,7 +46,6 @@ def dump(args):
                     layer = int(m.group(1))
                     content_type = m.group(2)
                     layers[layer][content_type] = var.eval().tolist()
-                    continue
 
             embedding = data['rnnlm/embedding:0']
             softmax_w = data['rnnlm/softmax_w:0']
@@ -62,8 +61,6 @@ def dump(args):
 
             with open('model.json', 'w') as fout:
                 fout.write(json.dumps(dump))
-            print("chars: {}".format(len(chars)))
-
 
 if __name__ == '__main__':
     main()
