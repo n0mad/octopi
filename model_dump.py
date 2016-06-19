@@ -51,12 +51,14 @@ def dump(args):
             softmax_w = data['rnnlm/softmax_w:0']
             softmax_b = data['rnnlm/softmax_b:0']
 
+            layer_size = len(embedding[0])
             dump = []
-            dump += [('chars', map(ord, chars))]
-            dump += data.items()
+            dump += [layer_size]
+            dump += [map(ord, chars)]
+            dump += [embedding, softmax_w, softmax_b]
 
             for layer_no in sorted(layers.keys()):
-                layer_data = layers[layer_no].items()
+                layer_data = layers[layer_no]['Matrix'], layers[layer_no]['Bias']
                 dump.append(layer_data)
 
             with open('model.json', 'w') as fout:

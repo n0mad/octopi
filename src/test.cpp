@@ -16,7 +16,7 @@ using namespace std;
 template <typename T>
 void testModelText(int length) {
     //std::ifstream t("./rnn/data/tinyshakespeare/input.txt");
-    std::ifstream t("processed/input_head.txt");
+    std::ifstream t("data/input.txt");
     std::string str_data((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
 
 
@@ -168,9 +168,14 @@ int main(int argc, char *argv[])
     testModelText<TModelConst>(1000);
     testModelText<TModelAdaptive>(1000); */
     //testModelText<TModelRNN>(1000);
-    testModelText<TModelRNN2>(10000);
+    testModelText<TModelRNN2>(100000);
+    //testModelText<TModelAdaptive>(100000);
 
-    testBytesBits();
+    //TModelRNN2 model;
+    //model.DumpSpace();
+    //model.Observe('a');
+
+    //testBytesBits();
 
     return 0;
 }

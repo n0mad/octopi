@@ -26,22 +26,11 @@ static void ParseMatrix(MatrixXd &m, const picojson::value &o) {
 };
 
 TModelRNN2::TModelRNN2(const string &fileName)
-    : Softmax_B(207, 1)
-    , RnnBias_0(256, 1)
-    , RnnBias_1(256, 1)
-    , State_0(256)
-    , State_1(256)
-    , Space(207)
-    , Embedding(207, 256)
-    , RnnW_0(256, 512)
-    , RnnW_1(256, 512)
-    , Softmax_W(256, 207)
-    , Concat_0(512)
-    , Concat_1(512)
+    : Observed(0)
 {
     ifstream inputFile(fileName);
     if (!inputFile.is_open()) {
-        cerr << "cannot reading input file for the rnnmodel";
+        cerr << "cannot reading input file for the rnnmodel" << endl;
         exit(-2);
     };
 
@@ -54,74 +43,61 @@ TModelRNN2::TModelRNN2(const string &fileName)
         exit(-3);
     };
 
-    if (!v.is<picojson::object>()) {
-        cerr << "JSON is not an object" << endl;
+    if (!v.is<picojson::array>()) {
+        cerr << "JSON is not an array" << endl;
         exit(-4);
     };
 
-    const picojson::value::object &root = v.get<picojson::object>();
-    for (picojson::value::object::const_iterator i = root.begin(); i != root.end(); ++i) {
-        if (i->first == "softmax_b") {
-            cout << 1 << endl;
-            const picojson::value &b_v = i->second;
-            ParseVector(Softmax_B, b_v);
-            continue;
-        };
-        if (i->first == "rnn_b_0") {
-            cout << 2 << endl;
-            const picojson::value &b_v = i->second;
-            ParseVector(RnnBias_0, b_v);
-            continue;
-        };
-        if (i->first == "rnn_b_1") {
-            cout << 2 << endl;
-            const picojson::value &b_v = i->second;
-            ParseVector(RnnBias_1, b_v);
-            continue;
-        };
-        if (i->first == "embeddings") {
-            cout << 3 << endl;
-            const picojson::value &b_v = i->second;
-            ParseMatrix(Embedding, b_v);
-            continue;
-        };
-        if (i->first == "softmax_w") {
-            cout << 4 << endl;
-            const picojson::value &b_v = i->second;
-            ParseMatrix(Softmax_W, b_v);
-            continue;
-        };
-        if (i->first == "rnn_w_0") {
-            cout << 5 << endl;
-            const picojson::value &b_v = i->second;
-            ParseMatrix(RnnW_0, b_v);
-            continue;
-        };
-        if (i->first == "rnn_w_1") {
-            cout << 5 << endl;
-            const picojson::value &b_v = i->second;
-            ParseMatrix(RnnW_1, b_v);
-            continue;
-        };
-        if (i->first == "chars") {
-            cout << 6 << endl;
-            const picojson::value::array &b = i->second.get<picojson::value::array>();
-            //TODO: int thing!
-            for(int i = 0; i < b.size(); ++i) {
-                Chars.push_back(b[i].get<double>());
-            };
-            continue;
-        };
+    const picojson::value::array &list = v.get<picojson::array>();
+    if (list.size() < 6) {
+        cerr << "Incorrect JSON" << endl;
+        exit(-4);
     };
-    State_0 *= 0.;
-    State_1 *= 0.;
+
+    int layer_size = list[0].get<double>();
+    cout << "layer_size " << layer_size << endl;
+
+    const picojson::value::array &chars = list[1].get<picojson::array>();
+    int n_chars = chars.size();
+    cout << "n_chars " << n_chars << endl;
+    for(int i = 0; i < n_chars; ++i) {
+        Chars.push_back(chars[i].get<double>());
+    };
+
+    Embedding = MatrixXd(n_chars, layer_size);
+    ParseMatrix(Embedding, list[2]);
+
+    Softmax_W = MatrixXd(layer_size, n_chars);
+    ParseMatrix(Softmax_W, list[3]);
+
+    Softmax_B = MatrixXd(n_chars, 1);
+    ParseVector(Softmax_B, list[4]);
+
+    for (int i = 5; i < list.size(); ++i) {
+        //layers
+        const picojson::value::array &layer = list[i].get<picojson::array>();
+
+        Matrixes.push_back(MatrixXd(2 * layer_size, layer_size));
+        ParseMatrix(Matrixes.back(), layer[0]);
+
+        Biases.push_back(MatrixXd(layer_size, 1));
+        ParseVector(Biases.back(), layer[1]);
+
+        States.push_back(VectorXd(layer_size));
+        States.back() *= 0;
+    };
+
+    cout << "Layers loaded: " << Matrixes.size() << endl;
     UpdateSpace();
+    //cout << Softmax_B;
+    //cout << Softmax_W;
 };
 
 void TModelRNN2::Reset()
 {
-    State_0 *= 0.;
-    State_1 *= 0.;
+    for (int i = 0; i < States.size(); ++i)
+        States[i] *= 0;
+
     UpdateSpace();
 };
 
@@ -157,7 +133,8 @@ uint8 TModelRNN2::Decode(uint32 value, uint32 &lower_count, uint32 &upper_count)
         lower_bound += Space[i];
     if (i >= Space.size()) {
         cerr << "i too big" << value_d << endl;
-        abort();
+        //abort();
+        i = Space.size() - 1;
     };
 
     double upper_bound = lower_bound + Space[i];
@@ -173,11 +150,19 @@ uint8 TModelRNN2::Decode(uint32 value, uint32 &lower_count, uint32 &upper_count)
 };
 
 void TModelRNN2::UpdateSpace() {
-    VectorXd output = Softmax_W.transpose() * State_1;
+    const VectorXd &top_layer_state = States.back();
+    VectorXd output = Softmax_W.transpose() * top_layer_state;
     output += Softmax_B;
 
+    double d = output.maxCoeff();
+    output.array() -= d;
     auto output2 = output.unaryExpr<double(*)(double)>(&std::exp);
-    Space = output2.array() / output2.sum() * LAMBDA + (1. - LAMBDA) / Space.size();
+
+    //cout << output2 << endl;
+    //cout << output2.array() / output2.sum() << endl;
+    //Space = output2.array() / output2.sum();
+    Space = output2.array() / output2.sum() * LAMBDA + (1. - LAMBDA) / Chars.size();
+    //Space.array() = 1. / Chars.size();
 };
 
 void TModelRNN2::DumpSpace() {
@@ -194,8 +179,8 @@ void TModelRNN2::DumpSpace() {
 };
 
 void TModelRNN2::DumpState() {
-    cout << State_0 << endl;
-    cout << State_1 << endl;
+    //cout << State_0 << endl;
+    //cout << State_1 << endl;
 };
 
 
@@ -214,17 +199,25 @@ void TModelRNN2::Observe(uint8 symbol) {
         cerr << "char not found " << (int) symbol << " or " << symbol << endl;
         abort();
     };
-    const VectorXd &emb = Embedding.row(i);
 
-    Concat_0 << emb, State_0;
+    VectorXd input = Embedding.row(i);
 
-    State_0 = RnnW_0 * Concat_0 + RnnBias_0;
-    State_0 = State_0.unaryExpr([](double elem) { return std::tanh(elem); });
+    if (0 == Observed % 500) {
+        //Reset();
+        Observed = 0;
+    };
+    for (int i = 0; i < States.size(); ++i) {
+        Eigen::VectorXd concat(2 * States[i].rows());
+        concat << input, States[i];
 
+        //cout << Matrixes[i].cols() << " " << Matrixes[i].rows() << " " << concat.cols() << " " << concat.rows() << endl;
+        States[i] =  Matrixes[i].transpose() * concat + Biases[i];
+        States[i] = States[i].unaryExpr([](double elem) { return std::tanh(elem); });
 
-    Concat_1 << State_0, State_1;
-    State_1 = RnnW_1 * Concat_1 + RnnBias_1;
-    State_1 = State_1.unaryExpr([](double elem) { return std::tanh(elem); });
+        //TODO fix
+        input = States[i];
+    };
 
+    Observed += 1;
     UpdateSpace();
 };
