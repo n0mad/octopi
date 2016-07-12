@@ -89,13 +89,4 @@ void Encoder::Encode(const std::vector<uint8> &input) {
 void Encoder::GetEncodedData(int &size, vector<bool> &output) {
     output = Data;
     return;
-    // empty the output buffer
-    size = Data.size();
-    output.clear();
-    output.assign(size / 8 + 1, 0);
-
-    for(int i = 0; i < size; ++i) {
-        output[i / 8] = output[i / 8] | (output[i] << (8 - i % 8));
-        //output[i / 8] = output[i / 8] | (output[i] << (i % 8));
-    };
 }

@@ -58,39 +58,33 @@ TModelRNN::TModelRNN(const string &fileName)
     const picojson::value::object &root = v.get<picojson::object>();
     for (picojson::value::object::const_iterator i = root.begin(); i != root.end(); ++i) {
         if (i->first == "softmax_b") {
-            cout << 1 << endl;
             const picojson::value &b_v = i->second;
             ParseVector(Softmax_B, b_v);
             continue;
         };
         if (i->first == "rnn_b") {
-            cout << 2 << endl;
             const picojson::value &b_v = i->second;
             ParseVector(RnnBias, b_v);
             continue;
         };
         if (i->first == "embeddings") {
-            cout << 3 << endl;
             const picojson::value &b_v = i->second;
             ParseMatrix(Embedding, b_v);
             continue;
         };
         if (i->first == "softmax_w") {
-            cout << 4 << endl;
             const picojson::value &b_v = i->second;
             ParseMatrix(Softmax_W, b_v);
             continue;
         };
         if (i->first == "rnn_w") {
-            cout << 5 << endl;
             const picojson::value &b_v = i->second;
             ParseMatrix(RnnW, b_v);
             continue;
         };
         if (i->first == "chars") {
-            cout << 6 << endl;
             const picojson::value::array &b = i->second.get<picojson::value::array>();
-            //TODO: int thing!
+            //TODO: use the picojson int
             for(int i = 0; i < b.size(); ++i) {
                 Chars.push_back(b[i].get<double>());
             };

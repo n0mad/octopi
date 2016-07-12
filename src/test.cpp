@@ -16,7 +16,7 @@ using namespace std;
 template <typename T>
 void testModelText(int length) {
     //std::ifstream t("./rnn/data/tinyshakespeare/input.txt");
-    std::ifstream t("data/input.txt");
+    std::ifstream t("data/input.txt.decode");
     std::string str_data((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
 
 
@@ -53,6 +53,7 @@ void testModelText(int length) {
     Decoder den(model.get(), &enc_output, data.size());
     den.DecodeSequence(dec_output);
     end = clock();
+    elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
     cout << "decoding time: " << elapsed_secs << "sec" << endl;
 
 
@@ -157,25 +158,19 @@ void testBytesBits() {
 
 int main(int argc, char *argv[])
 {
-    /*testModelUniform<TModelConst>('a', 'z', 1000);
+    testModelUniform<TModelConst>('a', 'z', 1000);
     testModelUniform<TModelAdaptive>('a', 'z', 1000);
-    testModelUniform<TModelRNN>('a', 'z', 1000);
+    //testModelUniform<TModelRNN2>('a', 'z', 1000);
 
-    testModelUniform<TModelConst>('a', 'b', 100000);
-    testModelUniform<TModelAdaptive>('a', 'b', 100000);
-    testModelUniform<TModelRNN>('a', 'b', 1000);
+    testModelUniform<TModelConst>('a', 'b', 1000);
+    testModelUniform<TModelAdaptive>('a', 'b', 1000);
+    //testModelUniform<TModelRNN2>('a', 'b', 1000);
 
-    testModelText<TModelConst>(1000);
-    testModelText<TModelAdaptive>(1000); */
-    //testModelText<TModelRNN>(1000);
-    testModelText<TModelRNN2>(100000);
-    //testModelText<TModelAdaptive>(100000);
+    testModelText<TModelConst>(10000);
+    testModelText<TModelAdaptive>(10000);
+    testModelText<TModelRNN2>(10000);
 
-    //TModelRNN2 model;
-    //model.DumpSpace();
-    //model.Observe('a');
-
-    //testBytesBits();
+    testBytesBits();
 
     return 0;
 }

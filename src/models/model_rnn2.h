@@ -7,7 +7,7 @@
 class TModelRNN2 : public TModel
 {
 public:
-    const double LAMBDA = 0.85;
+    const double LAMBDA = 1.;//0.85;
     const uint32 NORMALIZER = 1e8;//0x7FFFFFFF / 4;//1e6;
 
 

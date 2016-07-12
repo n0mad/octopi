@@ -15,7 +15,6 @@ protected:
     void SetBitFlush();
     void Encode(const unsigned int low_count, const unsigned int high_count, const unsigned int total);
 
-    // encoder & decoder
     uint32 mLow;
     uint32 mHigh;
     uint32 mStep;

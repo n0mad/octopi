@@ -55,11 +55,9 @@ TModelRNN2::TModelRNN2(const string &fileName)
     };
 
     int layer_size = list[0].get<double>();
-    cout << "layer_size " << layer_size << endl;
 
     const picojson::value::array &chars = list[1].get<picojson::array>();
     int n_chars = chars.size();
-    cout << "n_chars " << n_chars << endl;
     for(int i = 0; i < n_chars; ++i) {
         Chars.push_back(chars[i].get<double>());
     };
@@ -87,10 +85,7 @@ TModelRNN2::TModelRNN2(const string &fileName)
         States.back() *= 0;
     };
 
-    cout << "Layers loaded: " << Matrixes.size() << endl;
     UpdateSpace();
-    //cout << Softmax_B;
-    //cout << Softmax_W;
 };
 
 void TModelRNN2::Reset()
@@ -125,22 +120,24 @@ uint8 TModelRNN2::Decode(uint32 value, uint32 &lower_count, uint32 &upper_count)
 {
     double value_d = value;
     value_d /= NORMALIZER;
-    value_d = value_d > 1 ? 1. : value_d;
+    if (value_d > 1.) {
+        abort();
+    };
 
     double lower_bound = 0;
     int i = 0;
     for (i = 0; i < Chars.size() && lower_bound + Space[i] <= value_d; ++i)
         lower_bound += Space[i];
     if (i >= Space.size()) {
-        cerr << "i too big" << value_d << endl;
-        //abort();
+        cerr << "i too big" << value_d << "space norm" << (Space.array().sum() < 1 ? "smaller" : "not smaller") << endl;
+        DumpSpace();
+        abort();
         i = Space.size() - 1;
     };
 
     double upper_bound = lower_bound + Space[i];
     if (upper_bound > 1.) {
         cerr << "unnormalized: " << upper_bound << " " << i << " " << Space[i] << endl;
-        //abort();
         upper_bound = 1.;
     };
     lower_count   = (uint32) (NORMALIZER * lower_bound);
@@ -158,11 +155,8 @@ void TModelRNN2::UpdateSpace() {
     output.array() -= d;
     auto output2 = output.unaryExpr<double(*)(double)>(&std::exp);
 
-    //cout << output2 << endl;
-    //cout << output2.array() / output2.sum() << endl;
-    //Space = output2.array() / output2.sum();
-    Space = output2.array() / output2.sum() * LAMBDA + (1. - LAMBDA) / Chars.size();
-    //Space.array() = 1. / Chars.size();
+    Space = output2.array() / output2.sum();
+    Space.array() /= Space.sum();
 };
 
 void TModelRNN2::DumpSpace() {
@@ -202,15 +196,14 @@ void TModelRNN2::Observe(uint8 symbol) {
 
     VectorXd input = Embedding.row(i);
 
-    if (0 == Observed % 500) {
-        //Reset();
+    /*if (0 == Observed % 100) {
         Observed = 0;
-    };
+    };*/
+
     for (int i = 0; i < States.size(); ++i) {
         Eigen::VectorXd concat(2 * States[i].rows());
         concat << input, States[i];
 
-        //cout << Matrixes[i].cols() << " " << Matrixes[i].rows() << " " << concat.cols() << " " << concat.rows() << endl;
         States[i] =  Matrixes[i].transpose() * concat + Biases[i];
         States[i] = States[i].unaryExpr([](double elem) { return std::tanh(elem); });
 
