@@ -37,9 +37,7 @@ void testModelText(int length) {
     enc.Encode(data);
 
     vector<bool> enc_output;
-    int size;
-
-    enc.GetEncodedData(size, enc_output);
+    enc.GetEncodedData(enc_output);
 
     clock_t end = clock();
     double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
@@ -86,9 +84,7 @@ void testModelUniform(int lower, int upper, int dataSize) {
     enc.Encode(data);
 
     vector<bool> enc_output;
-    int size;
-
-    enc.GetEncodedData(size, enc_output);
+    enc.GetEncodedData(enc_output);
 
     cout << "bits used " << enc_output.size() << " for " << data.size() << " chars. Bit/char: " << 1. * enc_output.size() / data.size() << endl;
 

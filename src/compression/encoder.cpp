@@ -86,7 +86,7 @@ void Encoder::Encode(const std::vector<uint8> &input) {
 
 };
 
-void Encoder::GetEncodedData(int &size, vector<bool> &output) {
+void Encoder::GetEncodedData(vector<bool> &output) {
     output = Data;
     return;
 }

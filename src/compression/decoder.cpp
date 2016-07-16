@@ -57,12 +57,12 @@ void Decoder::Decode(uint32 low_count, uint32 high_count)
             mHigh = 2 * (mHigh - g_Half) + 1;
             mBuffer = 2 * (mBuffer - g_Half) + GetBit();
         }
-        //mScale = 0;
+        mScale = 0;
     }
     // e3 scaling
     while((g_FirstQuarter <= mLow) && (mHigh < g_ThirdQuarter))
     {
-        //mScale++;
+        mScale++;
         mLow = 2 * (mLow - g_FirstQuarter);
         mHigh = 2 * (mHigh - g_FirstQuarter) + 1;
         mBuffer = 2 * (mBuffer - g_FirstQuarter) + GetBit();

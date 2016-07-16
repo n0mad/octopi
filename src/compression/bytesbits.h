@@ -3,7 +3,7 @@
 
 class TBytesBits {
 
-    std::vector<vector<uint8>> Mapping;
+    std::vector<vector<bool>> Mapping;
 
     public:
     TBytesBits() {
@@ -11,10 +11,16 @@ class TBytesBits {
 
         for(int i = 0; i < 256; ++i) {
             int k = i;
-            for(int j = 7; j >= 0; j--) {
-                Mapping[i].push_back((k >> j) & 1);
+            int j = 128;
+            for(; j > 0; j = j / 2) {
+                Mapping[i].push_back(k & j);
             };
         };
+
+        cout << "dbg\n";
+        for(int i = 0; i < Mapping[128].size(); ++i)
+            cout << (int)Mapping[128][i];
+        cout << "dbg\n";
      };
 
     void Bytes2Bits(const std::vector<uint8> &input, std::vector<bool> &output) {
@@ -28,7 +34,7 @@ class TBytesBits {
     void Bits2Bytes(const std::vector<bool> &input, std::vector<uint8> &output) {
         output.clear();
 
-        int target_size = (0 == input.size() % 8) ? input.size() / 8 : input.size() % 8 + 1;
+        int target_size = (0 == input.size() % 8) ? input.size() / 8 : input.size() / 8 + 1;
         output.resize(target_size);
 
         for (int i = 0; i < input.size(); ++i) {

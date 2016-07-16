@@ -8,7 +8,7 @@ class Encoder
 public:
     Encoder(TModel *model);
     void Encode(const std::vector<uint8> &input);
-    void GetEncodedData(int &size, std::vector<bool> &output);
+    void GetEncodedData(std::vector<bool> &output);
 protected:
     // bit operations
     void SetBit(bool bit);

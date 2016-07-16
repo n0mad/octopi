@@ -1,6 +1,9 @@
-CPPFLAGS=-I src/eigen -Wall -std=c++11 -O3
+CPPFLAGS=-I src/eigen -Wall -std=c++14 -O3
 
-all:	bin/test
+all:	bin/test bin/octopi
+
+bin/octopi:	bin/model_const.o bin/model_adaptive.o bin/encoder.o src/oct.cpp bin/decoder.o src/compression/bytesbits.h bin/model_rnn.o bin/model_rnn2.o
+	g++ $(CPPFLAGS) bin/model_adaptive.o bin/model_const.o bin/encoder.o bin/decoder.o bin/model_rnn.o bin/model_rnn2.o src/oct.cpp -o bin/octopi
 
 bin/test:	bin/model_const.o bin/model_adaptive.o bin/encoder.o src/test.cpp bin/decoder.o src/compression/bytesbits.h bin/model_rnn.o bin/model_rnn2.o
 	g++ $(CPPFLAGS) bin/model_adaptive.o bin/model_const.o bin/encoder.o bin/decoder.o bin/model_rnn.o bin/model_rnn2.o src/test.cpp -o bin/test
