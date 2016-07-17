@@ -121,6 +121,7 @@ uint8 TModelRNN2::Decode(uint32 value, uint32 &lower_count, uint32 &upper_count)
     double value_d = value;
     value_d /= NORMALIZER;
     if (value_d > 1.) {
+        cerr << "value_d above 1" << endl;
         abort();
     };
 
@@ -156,7 +157,8 @@ void TModelRNN2::UpdateSpace() {
     auto output2 = output.unaryExpr<double(*)(double)>(&std::exp);
 
     Space = output2.array() / output2.sum();
-    Space.array() /= Space.sum();
+    //Space.array() /= Space.sum();
+    Space = output2.array() / output2.sum() * LAMBDA + (1. - LAMBDA) / Space.size();
 };
 
 void TModelRNN2::DumpSpace() {

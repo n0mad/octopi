@@ -15,7 +15,7 @@ Decoder::Decoder(TModel *model, vector<bool>* input, uint32 size) {
     mBitBuffer = 0;
     mLow = 0;
     mHigh = 0x7FFFFFFF; // just work with least significant 31 bits
-    //mScale = 0;
+    mScale = 0;
     mBuffer = 0;
     mStep = 0;
 

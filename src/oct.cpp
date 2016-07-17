@@ -21,11 +21,12 @@ void printUsage() {
 TModel* getModel(int argc, char *argv[]) {
     if (string(argv[2]) == "adaptive"s) {
         return new TModelAdaptive();
-    };
-    if (string(argv[2]) == "const"s) {
+    } else if (string(argv[2]) == "const"s) {
         return new TModelConst();
+    } else {
+        return new TModelRNN2(argv[2]);
     };
-    abort();
+     abort();
 };
 
 int main(int argc, char *argv[])
@@ -43,7 +44,7 @@ int main(int argc, char *argv[])
         ifstream inputStream(inputFileName, std::ios::in | std::ifstream::binary);
         noskipws(inputStream);
         vector<uint8> data;
-        data.insert(data.begin(), std::istream_iterator<uint8>(inputStream), std::istream_iterator<uint8>() );
+        data.insert(data.begin(), std::istream_iterator<uint8>(inputStream), std::istream_iterator<uint8>() );
 
         Encoder enc(model.get());
         enc.Encode(data);
@@ -60,8 +61,8 @@ int main(int argc, char *argv[])
         bb.Bits2Bytes(enc_output, output);
 
         string outputFileName = argv[4];
-        ofstream outputStream(outputFileName, std::ios_base::binary);
-        outputStream << (long) data.size();
+        ofstream outputStream(outputFileName, std::ios::out | std::ios_base::binary);
+        outputStream << (uint32) data.size();
         std::copy(output.begin(), output.end(), std::ostreambuf_iterator<char>(outputStream));
 
         /*
@@ -91,7 +92,7 @@ int main(int argc, char *argv[])
         ifstream inputStream(inputFileName, std::ios::in | std::ifstream::binary);
         vector<uint8> data;
         noskipws(inputStream);
-        long size;
+        uint32 size;
         inputStream >> size;
         cout << "unarch size " << size << endl;
         while(!inputStream.eof()) {
@@ -101,7 +102,7 @@ int main(int argc, char *argv[])
         };
         //for(int k = 0; k < data.size(); ++k)
 
-        //data.insert(data.begin(), std::istream_iterator<uint8>(inputStream), std::istream_iterator<uint8>() );
+//data.insert(data.begin(), std::istream_iterator<uint8>(inputStream), std::istream_iterator<uint8>() );
 
 
         TBytesBits bb;
