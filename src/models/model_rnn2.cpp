@@ -30,7 +30,7 @@ TModelRNN2::TModelRNN2(const string &fileName)
 {
     ifstream inputFile(fileName);
     if (!inputFile.is_open()) {
-        cerr << "cannot reading input file for the rnnmodel" << endl;
+        cerr << "cannot read input file for the rnnmodel " << fileName << endl;
         exit(-2);
     };
 

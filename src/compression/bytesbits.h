@@ -16,11 +16,6 @@ class TBytesBits {
                 Mapping[i].push_back(k & j);
             };
         };
-
-        cout << "dbg\n";
-        for(int i = 0; i < Mapping[128].size(); ++i)
-            cout << (int)Mapping[128][i];
-        cout << "dbg\n";
      };
 
     void Bytes2Bits(const std::vector<uint8> &input, std::vector<bool> &output) {
