@@ -44,7 +44,7 @@ def dump(args):
                 layers = defaultdict(lambda: defaultdict(dict))
 
             for var in tf.all_variables():
-                print var.name
+                print var.name, var.eval().shape
                 if var.name in data:
                     data[var.name] = var.eval().tolist()
                     continue

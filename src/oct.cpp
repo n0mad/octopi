@@ -3,7 +3,7 @@
 #include "model_abstract.h"
 #include "models/model_const.h"
 #include "models/model_adaptive.h"
-#include "models/model_rnn.h"
+#include "models/model_gru.h"
 #include "models/model_rnn2.h"
 #include "compression/encoder.h"
 #include "compression/decoder.h"
@@ -24,7 +24,9 @@ TModel* LoadModel(int argc, char *argv[]) {
     } else if (string(argv[2]) == "const"s) {
         return new TModelConst();
     } else {
-        return new TModelRNN2(argv[2]);
+        cout << "gru only" << endl;
+        //return new TModelRNN2(argv[2]);
+        return new TModelGRU(argv[2]);
     };
      abort();
 };
@@ -78,6 +80,9 @@ void Compress(const string& from, const string& to, TModel* model) {
 
 int main(int argc, char *argv[])
 {
+
+    //TModelGRU _model(argv[2]);
+    //exit(0);
     if (argc < 4) {
         cout << "too few arguments" << endl;
         printUsage();

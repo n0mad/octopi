@@ -1,4 +1,4 @@
-#include "model_rnn2.h"
+#include "model_gru.h"
 #include "./../picojson/picojson.h"
 #include <fstream>
 #include <math.h>
@@ -25,12 +25,12 @@ static void ParseMatrix(MatrixXd &m, const picojson::value &o) {
     };
 };
 
-TModelRNN2::TModelRNN2(const string &fileName)
+TModelGRU::TModelGRU(const string &fileName)
     : Observed(0)
 {
     ifstream inputFile(fileName);
     if (!inputFile.is_open()) {
-        cerr << "cannot read input file for the rnnmodel " << fileName << endl;
+        cerr << "cannot read input file for the gru model " << fileName << endl;
         exit(-2);
     };
 
@@ -71,24 +71,44 @@ TModelRNN2::TModelRNN2(const string &fileName)
     Softmax_B = MatrixXd(n_chars, 1);
     ParseVector(Softmax_B, list[4]);
 
+    cerr << 1 << endl;
+    //layer_data = layers[layer_no]['Gates']['Matrix'], layers[layer_no]['Gates']['Bias'], layers[layer_no]['Candidate']['Matrix'], layers[layer_no]['Candidate']['Bias']
+    //rnnlm/softmax_w:0 (128, 204)
+    //rnnlm/softmax_b:0 (204,)
+    //rnnlm/embedding:0 (204, 128)
+    //rnnlm/MultiRNNCell/Cell0/GRUCell/Gates/Linear/Matrix:0 (256, 256)
+    //rnnlm/MultiRNNCell/Cell0/GRUCell/Gates/Linear/Bias:0 (256,)
+    //rnnlm/MultiRNNCell/Cell0/GRUCell/Candidate/Linear/Matrix:0 (256, 128)
+    //rnnlm/MultiRNNCell/Cell0/GRUCell/Candidate/Linear/Bias:0 (128,)
     for (int i = 5; i < list.size(); ++i) {
         //layers
         const picojson::value::array &layer = list[i].get<picojson::array>();
 
-        Matrixes.push_back(MatrixXd(2 * layer_size, layer_size));
-        ParseMatrix(Matrixes.back(), layer[0]);
+        GateMatrixes.push_back(MatrixXd(2 * layer_size, 2 * layer_size));
+        ParseMatrix(GateMatrixes.back(), layer[0]);
+        cerr << 2 << endl;
 
-        Biases.push_back(MatrixXd(layer_size, 1));
-        ParseVector(Biases.back(), layer[1]);
+        GateBiases.push_back(MatrixXd(2 * layer_size, 1));
+        ParseVector(GateBiases.back(), layer[1]);
+
+        cerr << 3 << endl;
+        CandidateMatrixes.push_back(MatrixXd(2 * layer_size, layer_size));
+        ParseMatrix(CandidateMatrixes.back(), layer[2]);
+        cerr << 4 << endl;
+
+        CandidateBiases.push_back(MatrixXd(layer_size, 1));
+        ParseVector(CandidateBiases.back(), layer[3]);
+        cerr << 5 << endl;
 
         States.push_back(VectorXd(layer_size));
         States.back() *= 0;
+        cerr << 6 << endl;
     };
 
     UpdateSpace();
 };
 
-void TModelRNN2::Reset()
+void TModelGRU::Reset()
 {
     for (int i = 0; i < States.size(); ++i)
         States[i] *= 0;
@@ -97,7 +117,7 @@ void TModelRNN2::Reset()
 };
 
 
-void TModelRNN2::Encode(uint8 symbol, uint32 &low_count, uint32 &upper_count, uint32 &normalizer)
+void TModelGRU::Encode(uint8 symbol, uint32 &low_count, uint32 &upper_count, uint32 &normalizer)
 {
     low_count = 0;
     upper_count = 0;
@@ -116,7 +136,7 @@ void TModelRNN2::Encode(uint8 symbol, uint32 &low_count, uint32 &upper_count, ui
     normalizer = NORMALIZER;
 };
 
-uint8 TModelRNN2::Decode(uint32 value, uint32 &lower_count, uint32 &upper_count)
+uint8 TModelGRU::Decode(uint32 value, uint32 &lower_count, uint32 &upper_count)
 {
     double value_d = value;
     value_d /= NORMALIZER;
@@ -147,7 +167,7 @@ uint8 TModelRNN2::Decode(uint32 value, uint32 &lower_count, uint32 &upper_count)
     return Chars[i];
 };
 
-void TModelRNN2::UpdateSpace() {
+void TModelGRU::UpdateSpace() {
     const VectorXd &top_layer_state = States.back();
     VectorXd output = Softmax_W.transpose() * top_layer_state;
     output += Softmax_B;
@@ -161,7 +181,7 @@ void TModelRNN2::UpdateSpace() {
     Space = output2.array() / output2.sum() * LAMBDA + (1. - LAMBDA) / Space.size();
 };
 
-void TModelRNN2::DumpSpace() {
+void TModelGRU::DumpSpace() {
     double max = 0;
     int argmax = 0;
     for(int i = 0; i < Chars.size(); ++i) {
@@ -174,13 +194,13 @@ void TModelRNN2::DumpSpace() {
     cout << "argmax: " << Chars[argmax] << " max: " << max << endl;
 };
 
-void TModelRNN2::DumpState() {
+void TModelGRU::DumpState() {
     //cout << State_0 << endl;
     //cout << State_1 << endl;
 };
 
 
-void TModelRNN2::Observe(uint8 symbol) {
+void TModelGRU::Observe(uint8 symbol) {
     //TODO: binary search or sort
     int i = 0;
     bool found = false;
@@ -197,22 +217,32 @@ void TModelRNN2::Observe(uint8 symbol) {
     };
 
     VectorXd input = Embedding.row(i);
-
-    /*if (0 == Observed % 100) {
-        Observed = 0;
-    };*/
+    int layer_size = input.size();
 
     for (int i = 0; i < States.size(); ++i) {
-        Eigen::VectorXd concat(2 * States[i].rows());
-        concat << input, States[i];
+        Eigen::VectorXd input_state(2 * States[i].rows());
+        input_state << input, States[i];
 
-        States[i] = Matrixes[i].transpose() * concat + Biases[i];
-        States[i] = States[i].unaryExpr([](double elem) { return std::tanh(elem); });
+        Eigen::VectorXd gates = GateMatrixes[i].transpose() * input_state + GateBiases[i];
+        gates = gates.unaryExpr([](double elem) { return 1.0/ (1.0 + std::exp(-elem)); });
 
-        //TODO fix
+
+        Eigen::VectorXd r = gates.head(layer_size);
+        Eigen::VectorXd u = gates.tail(layer_size);
+
+        r.array() = r.array() * States[i].array(); //r coordinate-wise s
+
+        Eigen::VectorXd input_reset_state(2 * States[i].rows());
+        input_reset_state << input, r;
+
+        Eigen::VectorXd candidate = CandidateMatrixes[i].transpose() * input_reset_state + CandidateBiases[i];
+        candidate = candidate.unaryExpr([](double elem) { return std::tanh(elem); });
+
+        States[i].array() = u.array() * States[i].array() - (u.array() - 1.0) * candidate.array();
         input = States[i];
     };
 
     Observed += 1;
     UpdateSpace();
+
 };

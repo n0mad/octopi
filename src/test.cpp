@@ -3,7 +3,7 @@
 #include "model_abstract.h"
 #include "models/model_const.h"
 #include "models/model_adaptive.h"
-#include "models/model_rnn.h"
+#include "models/model_gru.h"
 #include "models/model_rnn2.h"
 #include "compression/encoder.h"
 #include "compression/decoder.h"
