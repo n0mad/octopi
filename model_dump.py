@@ -72,6 +72,7 @@ def dump(args):
 
             layer_size = len(embedding[0])
             dump = []
+            dump += [args.model_type]
             dump += [layer_size]
             dump += [map(ord, chars)]
             dump += [embedding, softmax_w, softmax_b]

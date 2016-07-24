@@ -1,5 +1,3 @@
-#include <iostream>
-#include <fstream>
 #include "model_abstract.h"
 #include "models/model_const.h"
 #include "models/model_adaptive.h"
@@ -8,14 +6,17 @@
 #include "compression/encoder.h"
 #include "compression/decoder.h"
 #include "compression/bytesbits.h"
+#include "picojson/picojson.h"
 #include <assert.h>
+#include <iostream>
+#include <fstream>
 #include <random>
 #include <string>
 
 using namespace std;
 
 void printUsage() {
-    cout << "usage: octopi -(c|d) <model> <input file> <output file>";
+    cout << "usage: octopi (-c|-d) <model> <input file> <output file>";
 };
 
 TModel* LoadModel(int argc, char *argv[]) {
@@ -24,33 +25,63 @@ TModel* LoadModel(int argc, char *argv[]) {
     } else if (string(argv[2]) == "const"s) {
         return new TModelConst();
     } else {
-        cout << "gru only" << endl;
-        //return new TModelRNN2(argv[2]);
-        return new TModelGRU(argv[2]);
+        string fileName(argv[2]);
+        ifstream inputFile(fileName);
+        if (!inputFile.is_open()) {
+            cerr << "Cannot read the model file" << fileName << endl;
+            abort();
+        };
+
+        picojson::value v;
+        inputFile >> v;
+        string err = picojson::get_last_error();
+
+        if (!err.empty()) {
+            cerr << "Error while reading json" << err << endl;
+            abort();
+        };
+
+        if (!v.is<picojson::array>()) {
+            cerr << "Bad JSON format: the top level element is not an array" << endl;
+            abort();
+        };
+
+        const picojson::value::array &list = v.get<picojson::array>();
+
+        if (!list[0].is<string>()) {
+            cerr << "Bad JSON format: model type is not a string" << endl;
+            abort();
+        };
+
+        string model_type = list[0].get<string>();
+        if (model_type == "gru") {
+            return new TModelGRU(argv[2]);
+        } else if (model_type == "rnn") {
+            return new TModelRNN2(argv[2]);
+        } else {
+            cerr << "Unsupported model type:" << model_type << ", only gru or rnn are supported so far" << endl;
+            abort();
+        };
+        //unreachable
+        return nullptr;
     };
-     abort();
 };
 
 void Decompress(const string& from, const string& to, TModel* model) {
     ifstream inputStream(from, std::ios::in | std::ifstream::binary);
     vector<uint8> data;
     noskipws(inputStream);
-    uint32 size;
-    inputStream >> size;
+    int dataSize;
+    inputStream.read((char *) &dataSize, sizeof(int)); //not too compatible
 
     data.insert(data.begin(), std::istream_iterator<uint8>(inputStream), std::istream_iterator<uint8>() );
-    /*while(!inputStream.eof()) {
-        uint8 b;
-        inputStream >> b;
-        data.push_back(b);
-    };*/
 
     TBytesBits bb;
     vector<bool> bits;
 
     bb.Bytes2Bits(data, bits);
     vector<uint8> output;
-    Decoder den(model, &bits, size);
+    Decoder den(model, &bits, dataSize);
     den.DecodeSequence(output);
 
     ofstream outputStream(to, std::ios_base::binary);
@@ -58,7 +89,7 @@ void Decompress(const string& from, const string& to, TModel* model) {
 }
 
 void Compress(const string& from, const string& to, TModel* model) {
-    ifstream inputStream(from, std::ios::in | std::ifstream::binary);
+    ifstream inputStream(from, std::ios::in | std::ios::binary);
     noskipws(inputStream);
     vector<uint8> data;
     data.insert(data.begin(), std::istream_iterator<uint8>(inputStream), std::istream_iterator<uint8>() );
@@ -73,30 +104,31 @@ void Compress(const string& from, const string& to, TModel* model) {
     TBytesBits bb;
     bb.Bits2Bytes(enc_output, output);
 
-    ofstream outputStream(to, std::ios::out | std::ios_base::binary);
-    outputStream << (uint32) data.size();
+    ofstream outputStream(to, std::ios::out | std::ios::binary);
+    int dataSize = data.size();
+    outputStream.write( (char *) &dataSize, sizeof(int)); //not too compatible
+    //outputStream << (uint32) data.size();
     std::copy(output.begin(), output.end(), std::ostreambuf_iterator<char>(outputStream));
 }
 
 int main(int argc, char *argv[])
 {
-
-    //TModelGRU _model(argv[2]);
-    //exit(0);
     if (argc < 4) {
         cout << "too few arguments" << endl;
         printUsage();
         return 1;
     };
-    //load model
     unique_ptr<TModel> model(LoadModel(argc, argv));
     string from = argv[3];
     string to = argv[4];
 
-    if (string(argv[1]) == "c"s) {
+    if (string(argv[1]) == "-c"s) {
         Compress(from, to, model.get());
-    } else if (string(argv[1]) == "d"s) {
+    } else if (string(argv[1]) == "-d"s) {
         Decompress(from, to, model.get());
+    } else {
+        printUsage();
     };
+
     return 0;
 }

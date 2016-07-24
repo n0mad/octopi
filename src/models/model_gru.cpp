@@ -49,60 +49,52 @@ TModelGRU::TModelGRU(const string &fileName)
     };
 
     const picojson::value::array &list = v.get<picojson::array>();
-    if (list.size() < 6) {
-        cerr << "Incorrect JSON" << endl;
+    if (list.size() < 7) {
+        cerr << "Incorrect JSON, too few fields" << endl;
         exit(-4);
     };
 
-    int layer_size = list[0].get<double>();
+    string model_type = list[0].get<string>();
+    if (model_type != "gru") {
+        cerr << "gru type model expected, got " << model_type << endl;
+        exit(-5);
+    };
 
-    const picojson::value::array &chars = list[1].get<picojson::array>();
+    int layer_size = list[1].get<double>();
+
+    const picojson::value::array &chars = list[2].get<picojson::array>();
     int n_chars = chars.size();
     for(int i = 0; i < n_chars; ++i) {
         Chars.push_back(chars[i].get<double>());
     };
 
     Embedding = MatrixXd(n_chars, layer_size);
-    ParseMatrix(Embedding, list[2]);
+    ParseMatrix(Embedding, list[3]);
 
     Softmax_W = MatrixXd(layer_size, n_chars);
-    ParseMatrix(Softmax_W, list[3]);
+    ParseMatrix(Softmax_W, list[4]);
 
     Softmax_B = MatrixXd(n_chars, 1);
-    ParseVector(Softmax_B, list[4]);
+    ParseVector(Softmax_B, list[5]);
 
-    cerr << 1 << endl;
-    //layer_data = layers[layer_no]['Gates']['Matrix'], layers[layer_no]['Gates']['Bias'], layers[layer_no]['Candidate']['Matrix'], layers[layer_no]['Candidate']['Bias']
-    //rnnlm/softmax_w:0 (128, 204)
-    //rnnlm/softmax_b:0 (204,)
-    //rnnlm/embedding:0 (204, 128)
-    //rnnlm/MultiRNNCell/Cell0/GRUCell/Gates/Linear/Matrix:0 (256, 256)
-    //rnnlm/MultiRNNCell/Cell0/GRUCell/Gates/Linear/Bias:0 (256,)
-    //rnnlm/MultiRNNCell/Cell0/GRUCell/Candidate/Linear/Matrix:0 (256, 128)
-    //rnnlm/MultiRNNCell/Cell0/GRUCell/Candidate/Linear/Bias:0 (128,)
-    for (int i = 5; i < list.size(); ++i) {
+    for (int i = 6; i < list.size(); ++i) {
         //layers
         const picojson::value::array &layer = list[i].get<picojson::array>();
 
         GateMatrixes.push_back(MatrixXd(2 * layer_size, 2 * layer_size));
         ParseMatrix(GateMatrixes.back(), layer[0]);
-        cerr << 2 << endl;
 
         GateBiases.push_back(MatrixXd(2 * layer_size, 1));
         ParseVector(GateBiases.back(), layer[1]);
 
-        cerr << 3 << endl;
         CandidateMatrixes.push_back(MatrixXd(2 * layer_size, layer_size));
         ParseMatrix(CandidateMatrixes.back(), layer[2]);
-        cerr << 4 << endl;
 
         CandidateBiases.push_back(MatrixXd(layer_size, 1));
         ParseVector(CandidateBiases.back(), layer[3]);
-        cerr << 5 << endl;
 
         States.push_back(VectorXd(layer_size));
         States.back() *= 0;
-        cerr << 6 << endl;
     };
 
     UpdateSpace();
