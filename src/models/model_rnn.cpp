@@ -1,4 +1,4 @@
-#include "model_rnn2.h"
+#include "model_rnn.h"
 #include "json_util.h"
 #include "./../picojson/picojson.h"
 #include <fstream>
@@ -8,7 +8,7 @@ using namespace std;
 using namespace Eigen;
 using namespace OctopiJsonHelper;
 
-TModelRNN2::TModelRNN2(const string &fileName)
+TModelRNN::TModelRNN(const string &fileName)
     : Observed(0)
 {
     ifstream inputFile(fileName);
@@ -77,7 +77,7 @@ TModelRNN2::TModelRNN2(const string &fileName)
     UpdateSpace();
 };
 
-void TModelRNN2::Reset()
+void TModelRNN::Reset()
 {
     for (int i = 0; i < States.size(); ++i)
         States[i] *= 0;
@@ -86,7 +86,7 @@ void TModelRNN2::Reset()
 };
 
 
-void TModelRNN2::Encode(uint8 symbol, uint32 &low_count, uint32 &upper_count, uint32 &normalizer)
+void TModelRNN::Encode(uint8 symbol, uint32 &low_count, uint32 &upper_count, uint32 &normalizer)
 {
     low_count = 0;
     upper_count = 0;
@@ -105,7 +105,7 @@ void TModelRNN2::Encode(uint8 symbol, uint32 &low_count, uint32 &upper_count, ui
     normalizer = NORMALIZER;
 };
 
-uint8 TModelRNN2::Decode(uint32 value, uint32 &lower_count, uint32 &upper_count)
+uint8 TModelRNN::Decode(uint32 value, uint32 &lower_count, uint32 &upper_count)
 {
     double value_d = value;
     value_d /= NORMALIZER;
@@ -136,7 +136,7 @@ uint8 TModelRNN2::Decode(uint32 value, uint32 &lower_count, uint32 &upper_count)
     return Chars[i];
 };
 
-void TModelRNN2::UpdateSpace() {
+void TModelRNN::UpdateSpace() {
     const VectorXd &top_layer_state = States.back();
     VectorXd output = Softmax_W.transpose() * top_layer_state;
     output += Softmax_B;
@@ -150,7 +150,7 @@ void TModelRNN2::UpdateSpace() {
     Space = output2.array() / output2.sum() * LAMBDA + (1. - LAMBDA) / Space.size();
 };
 
-void TModelRNN2::DumpSpace() {
+void TModelRNN::DumpSpace() {
     double max = 0;
     int argmax = 0;
     for(int i = 0; i < Chars.size(); ++i) {
@@ -163,13 +163,13 @@ void TModelRNN2::DumpSpace() {
     cout << "argmax: " << Chars[argmax] << " max: " << max << endl;
 };
 
-void TModelRNN2::DumpState() {
+void TModelRNN::DumpState() {
     //cout << State_0 << endl;
     //cout << State_1 << endl;
 };
 
 
-void TModelRNN2::Observe(uint8 symbol) {
+void TModelRNN::Observe(uint8 symbol) {
     //TODO: binary search or sort
     int i = 0;
     bool found = false;

@@ -2,7 +2,7 @@
 #include "models/model_const.h"
 #include "models/model_adaptive.h"
 #include "models/model_gru.h"
-#include "models/model_rnn2.h"
+#include "models/model_rnn.h"
 #include "compression/encoder.h"
 #include "compression/decoder.h"
 #include "compression/bytesbits.h"
@@ -57,7 +57,7 @@ TModel* LoadModel(int argc, char *argv[]) {
         if (model_type == "gru") {
             return new TModelGRU(argv[2]);
         } else if (model_type == "rnn") {
-            return new TModelRNN2(argv[2]);
+            return new TModelRNN(argv[2]);
         } else {
             cerr << "Unsupported model type:" << model_type << ", only gru or rnn are supported so far" << endl;
             abort();

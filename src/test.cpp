@@ -4,7 +4,7 @@
 #include "models/model_const.h"
 #include "models/model_adaptive.h"
 #include "models/model_gru.h"
-#include "models/model_rnn2.h"
+#include "models/model_rnn.h"
 #include "compression/encoder.h"
 #include "compression/decoder.h"
 #include "compression/bytesbits.h"
@@ -156,15 +156,15 @@ int main(int argc, char *argv[])
 {
     testModelUniform<TModelConst>('a', 'z', 1000);
     testModelUniform<TModelAdaptive>('a', 'z', 1000);
-    //testModelUniform<TModelRNN2>('a', 'z', 1000);
+    //testModelUniform<TModelRNN>('a', 'z', 1000);
 
     testModelUniform<TModelConst>('a', 'b', 1000);
     testModelUniform<TModelAdaptive>('a', 'b', 1000);
-    //testModelUniform<TModelRNN2>('a', 'b', 1000);
+    //testModelUniform<TModelRNN>('a', 'b', 1000);
 
     testModelText<TModelConst>(10000);
     testModelText<TModelAdaptive>(10000);
-    testModelText<TModelRNN2>(10000);
+    testModelText<TModelRNN>(10000);
 
     testBytesBits();
 
