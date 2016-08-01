@@ -1,29 +1,12 @@
 #include "model_gru.h"
+#include "json_util.h"
 #include "./../picojson/picojson.h"
 #include <fstream>
 #include <math.h>
 
 using namespace std;
 using namespace Eigen;
-
-static void ParseVector(MatrixXd &v, const picojson::value &o) {
-    const picojson::value::array &b = o.get<picojson::value::array>();
-    for(int j = 0; j < b.size(); ++j) {
-        double d = b[j].get<double>();
-        v(j) = d;
-    };
-};
-
-static void ParseMatrix(MatrixXd &m, const picojson::value &o) {
-    const picojson::value::array &b = o.get<picojson::value::array>();
-    for(int i = 0; i < b.size(); ++i) {
-        const picojson::value::array &row = b[i].get<picojson::value::array>();
-        for(int j = 0; j < row.size(); ++j) {
-            double d = row[j].get<double>();
-            m(i, j) = d;
-        };
-    };
-};
+using namespace OctopiJsonHelper;
 
 TModelGRU::TModelGRU(const string &fileName)
     : Observed(0)
