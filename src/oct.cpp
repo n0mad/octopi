@@ -16,7 +16,7 @@
 using namespace std;
 
 void printUsage() {
-    cout << "usage: octopi (-c|-d) <model> <input file> <output file>";
+    cout << "usage: octopi (-c|-d) <model> <input file> <output file>" << endl;
 };
 
 TModel* LoadModel(int argc, char *argv[]) {
