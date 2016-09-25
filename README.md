@@ -1,6 +1,6 @@
 ## Short Description
 
-This repo contains code of a illustrative text ``compression/decompression'' utility oct, powered by a combination of arithmetic coding and character-level recurrent neural networks (RNN). Despite its simplicity, it beats gzip/bzip2 on compressing ratio for text files when RNN is trained against the compressed file. In other words, the use case currently supported is not a general compression, but rather a fixed-dataset compression; mainly due to a considerable time required for training a neural net. Such a scenario can be useful for storing Wikipedia on a mobile, for instance.
+This repo contains code of a illustrative text compression/decompression utility oct, powered by a combination of arithmetic coding and character-level recurrent neural networks (RNN). Despite its simplicity, it beats gzip on compressing text files when RNN is trained against the compressed file. Such a capability might be useful is several scenarios, e.g. for storing Wikipedia on a mobile.
 
 ## Motivation
 
@@ -8,17 +8,12 @@ Arithmetic coding is a flexible compression approach that wraps any generative m
 
 Recurrent neural nets (''vanilla'' RNN, GRU, and LSTM) proved to be very successful in text modelling. Character-level generative models pre-trained on various sources turned out to be capable of doing amazing stuff () and conquered the web in no time.
 
-It looks like this is a match made in heaven, so I decided to play with character-level nets and arithmetic coding to see if something interesting can emerge. I started this mini-pet-project in May, and since then lot of stuff happened (I moved to France, finished and defended my thesis, Google wrote a paper on neural nets and arithmetic coding for image compression, etc). So I decided I'd rather dump it to Github as is, rather than hide it forever :)
+It looks like this is match made in heaven, so I decided to play with character-level nets and arithmetic coding to see if something interesting can emerge.
 
-## Broad overview of Machine Learning and Compression
-
-### Five-line intro into Arithmetic Coding
-
-### Five-line intro into RNNs
 
 ## How Code Is Organised
 
-The code uses three external libs, plugged as submodules: picojson (C++ lib to parse json), rnn (re-implementation of char-rnn in keras; used only if you want to train your own models), and eigen (to implement forward-pass RNN and GRU). 
+The code uses two external libs, plugged as submodules: picojson (C++ lib to parse json) and rnn (re-implementation of char-rnn in keras). The latter is used to train new RNN models if there is a need; if you only plan to play with the models I provide, it is not necessary.
 
 Further, there are two big, independent parts: the arithmetic coder/decoder (src/compression) and implementations of different models (src/models). The models implemented are: (a) constant model for debug purposes, (b) adaptive frequency model, (c) multi-layer vanilla RNN, and (d) multi-layer GRU.
 
@@ -86,17 +81,12 @@ Huh, these 460Kb are totally not cost-effective for a 1Mb example!
 
 However, for a 100Mb full Simple Wikipedia (grab it here), that accounts for less than 0.5% of the original size, and hence the difference with bzip2 becomes significant.  On my system, the compressed size of Wikipedia is XXXX , including the 460Kb model it becomes ; giving the total compression ratio of ... In contrast, bzip2 compresses the same text into ...
 
-
 ## I want to train my own models and use them
 
-## Conclusions
-
-My personal take-away is that one can easily beat sophisticated general purpose compression algorithms without any knowledge of compression just by using some of-the-shelf techniques. Also RNNs are cool.
-
+## A five-line tutorials of arithmetic coding and recurrent neural networks
 
 ## Contributors
-Eugene Kharitonov - firstname.lastname gmail
-Tania Starikovskaia
-
+Eugene Kharitonov
+firstname.lastname gmail
 
 ## Related Work
