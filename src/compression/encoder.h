@@ -13,7 +13,7 @@ protected:
     // bit operations
     void SetBit(bool bit);
     void SetBitFlush();
-    void Encode(const unsigned int low_count, const unsigned int high_count, const unsigned int total);
+    void Encode(const uint32 low_count, const uint32 high_count, const uint32 total);
 
     uint32 mLow;
     uint32 mHigh;

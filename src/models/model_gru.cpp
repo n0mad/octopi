@@ -105,6 +105,8 @@ void TModelGRU::Encode(uint8 symbol, uint32 &low_count, uint32 &upper_count, uin
     };
 
     double upper_bound = lower_bound + Space[i];
+    //cout << "encoding char: " << Chars[i] << " " << lower_bound << " " << upper_bound << endl;
+    //DumpSpace();
 
     low_count   = (uint32) (NORMALIZER * lower_bound);
     upper_count = (uint32) (NORMALIZER * upper_bound);
@@ -116,13 +118,14 @@ uint8 TModelGRU::Decode(uint32 value, uint32 &lower_count, uint32 &upper_count)
     double value_d = value;
     value_d /= NORMALIZER;
     if (value_d > 1.) {
-        cerr << "value_d above 1" << endl;
+        DumpSpace();
+        cerr << "value_d above 1: [ " << value_d << " ]" << endl;
         abort();
     };
 
     double lower_bound = 0;
     int i = 0;
-    for (i = 0; i < Chars.size() && lower_bound + Space[i] <= value_d; ++i)
+    for (i = 0; i < Chars.size() && lower_bound + Space[i] < value_d; ++i)
         lower_bound += Space[i];
     if (i >= Space.size()) {
         cerr << "i too big" << value_d << "space norm" << (Space.array().sum() < 1 ? "smaller" : "not smaller") << endl;
@@ -139,6 +142,8 @@ uint8 TModelGRU::Decode(uint32 value, uint32 &lower_count, uint32 &upper_count)
     lower_count   = (uint32) (NORMALIZER * lower_bound);
     upper_count = (uint32) (NORMALIZER * upper_bound);
 
+    //cout << Chars[i] << " " << lower_bound << " " << upper_bound << endl;
+    //DumpSpace();
     return Chars[i];
 };
 
@@ -160,7 +165,7 @@ void TModelGRU::DumpSpace() {
     double max = 0;
     int argmax = 0;
     for(int i = 0; i < Chars.size(); ++i) {
-        cout << Space[i] << " " << Chars[i] << endl;
+        cout << Space[i] << " " << Chars[i] << "\t";
         if(Space[i] > max) {
             max = Space[i];
             argmax = i;

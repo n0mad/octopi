@@ -7,8 +7,8 @@
 class TModelGRU : public TModel
 {
 public:
-    const double LAMBDA = 0.95;
-    const uint32 NORMALIZER = 1e8;//0x7FFFFFFF / 4;//1e6;
+    const double LAMBDA = 0.950;//1.0;//0.9;
+    const uint32 NORMALIZER = 1e10;// / 4;//1e6;
 
 
 	TModelGRU(const std::string &fileName = "model.json");

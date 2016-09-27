@@ -2,16 +2,11 @@
 #include "encoder.h"
 
 using namespace std;
-// constants to split the number space of 32 bit integers
-// most significant bit kept free to prevent overflows
-const uint32 g_FirstQuarter = 0x20000000;
-const uint32 g_ThirdQuarter = 0x60000000;
-const uint32 g_Half = 0x40000000;
 
 Encoder::Encoder(TModel* model)
 {
     mLow = 0;
-    mHigh = 0x7FFFFFFF; // just work with least significant 31 bits
+    mHigh = g_Max;//0x7FFFFFFFF; // just work with least significant 31 bits
     mScale = 0;
     mStep = 0;
     Model = model;
@@ -23,7 +18,7 @@ void Encoder::SetBit(bool bit)
 }
 
 
-void Encoder::Encode(const unsigned int low_count, const unsigned int high_count, const unsigned int total)
+void Encoder::Encode(const uint32 low_count, const uint32 high_count, const uint32 total)
     // total < 2ˆ29
 {
     // partition number space into single steps

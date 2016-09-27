@@ -2,19 +2,13 @@
 #include "decoder.h"
 #include <vector>
 
-// constants to split the number space of 32 bit integers
-// most significant bit kept free to prevent overflows
-const unsigned int g_FirstQuarter = 0x20000000;
-const unsigned int g_ThirdQuarter = 0x60000000;
-const unsigned int g_Half = 0x40000000;
-
 using namespace std;
 
 Decoder::Decoder(TModel *model, vector<bool>* input, uint32 size) {
     mBitCount = 0;
     mBitBuffer = 0;
     mLow = 0;
-    mHigh = 0x7FFFFFFF; // just work with least significant 31 bits
+    mHigh = g_Max; //0x7FFFFFFFF; // just work with least significant 31 bits
     mScale = 0;
     mBuffer = 0;
     mStep = 0;
@@ -72,7 +66,7 @@ void Decoder::Decode(uint32 low_count, uint32 high_count)
 
 void Decoder::DecodeSequence(vector<uint8> &output) {
     // Fill buffer with bits from the input stream
-    for(int i = 0; i < 31; i++) // just use the 31 least significant bits
+    for(int i = 0; i < 39; i++) // just use the 31 least significant bits
         mBuffer = (mBuffer << 1) | GetBit();
     while(output.size() < Size) {
         uint32 low_count = 0, upper_count = 0;
