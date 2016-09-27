@@ -9,7 +9,6 @@ using namespace Eigen;
 using namespace OctopiJsonHelper;
 
 TModelGRU::TModelGRU(const string &fileName)
-    : Observed(0)
 {
     ifstream inputFile(fileName);
     if (!inputFile.is_open()) {
@@ -92,7 +91,7 @@ void TModelGRU::Reset()
 };
 
 
-void TModelGRU::Encode(uint8 symbol, uint32 &low_count, uint32 &upper_count, uint32 &normalizer)
+void TModelGRU::Encode(uint8 symbol, uint64 &low_count, uint64 &upper_count, uint64 &normalizer)
 {
     low_count = 0;
     upper_count = 0;
@@ -108,12 +107,12 @@ void TModelGRU::Encode(uint8 symbol, uint32 &low_count, uint32 &upper_count, uin
     //cout << "encoding char: " << Chars[i] << " " << lower_bound << " " << upper_bound << endl;
     //DumpSpace();
 
-    low_count   = (uint32) (NORMALIZER * lower_bound);
-    upper_count = (uint32) (NORMALIZER * upper_bound);
+    low_count   = (uint64) (NORMALIZER * lower_bound);
+    upper_count = (uint64) (NORMALIZER * upper_bound);
     normalizer = NORMALIZER;
 };
 
-uint8 TModelGRU::Decode(uint32 value, uint32 &lower_count, uint32 &upper_count)
+uint8 TModelGRU::Decode(uint64 value, uint64 &lower_count, uint64 &upper_count)
 {
     double value_d = value;
     value_d /= NORMALIZER;
@@ -139,8 +138,8 @@ uint8 TModelGRU::Decode(uint32 value, uint32 &lower_count, uint32 &upper_count)
         cerr << "unnormalized: " << upper_bound << " " << i << " " << Space[i] << endl;
         upper_bound = 1.;
     };
-    lower_count   = (uint32) (NORMALIZER * lower_bound);
-    upper_count = (uint32) (NORMALIZER * upper_bound);
+    lower_count   = (uint64) (NORMALIZER * lower_bound);
+    upper_count = (uint64) (NORMALIZER * upper_bound);
 
     //cout << Chars[i] << " " << lower_bound << " " << upper_bound << endl;
     //DumpSpace();
@@ -222,7 +221,6 @@ void TModelGRU::Observe(uint8 symbol) {
         input = States[i];
     };
 
-    Observed += 1;
     UpdateSpace();
 
 };

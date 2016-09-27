@@ -4,11 +4,11 @@
 
 using namespace std;
 
-Decoder::Decoder(TModel *model, vector<bool>* input, uint32 size) {
+Decoder::Decoder(TModel *model, vector<bool>* input, int size) {
     mBitCount = 0;
     mBitBuffer = 0;
     mLow = 0;
-    mHigh = g_Max; //0x7FFFFFFFF; // just work with least significant 31 bits
+    mHigh = g_Max;
     mScale = 0;
     mBuffer = 0;
     mStep = 0;
@@ -26,12 +26,12 @@ uint8 Decoder::GetBit() {
         return 0;
 }
 
-uint32 Decoder::DecodeTarget(uint32 total)
+uint64 Decoder::DecodeTarget(uint64 total)
 {
     mStep = (mHigh - mLow + 1) / total;
     return (mBuffer - mLow) / mStep;
 }
-void Decoder::Decode(uint32 low_count, uint32 high_count)
+void Decoder::Decode(uint64 low_count, uint64 high_count)
 {
     // update upper bound
     mHigh = mLow + mStep * high_count - 1; // interval open at the top => -1
@@ -69,8 +69,8 @@ void Decoder::DecodeSequence(vector<uint8> &output) {
     for(int i = 0; i < 39; i++) // just use the 31 least significant bits
         mBuffer = (mBuffer << 1) | GetBit();
     while(output.size() < Size) {
-        uint32 low_count = 0, upper_count = 0;
-        uint32 value = DecodeTarget(Model->GetNormalizer());
+        uint64 low_count = 0, upper_count = 0;
+        uint64 value = DecodeTarget(Model->GetNormalizer());
         uint8 symbol = Model->Decode(value, low_count, upper_count);
         output.push_back(symbol);
         Model->Observe(symbol);

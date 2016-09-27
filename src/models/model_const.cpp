@@ -13,7 +13,7 @@ void TModelConst::Reset()
 		Probs[i] = 1;
 };
 
-void TModelConst::Encode(uint8 symbol, uint32 &low_count, uint32 &upper_count, uint32 &normalizer)
+void TModelConst::Encode(uint8 symbol, uint64 &low_count, uint64 &upper_count, uint64 &normalizer)
 {
     // cumulate frequencies
     low_count = 0;
@@ -24,7 +24,7 @@ void TModelConst::Encode(uint8 symbol, uint32 &low_count, uint32 &upper_count, u
     normalizer = Normalizer;
 };
 
-uint8 TModelConst::Decode(uint32 value, uint32 &lower_count, uint32 &upper_count)
+uint8 TModelConst::Decode(uint64 value, uint64 &lower_count, uint64 &upper_count)
 {
     uint8 symbol = 0;
     lower_count = 0;

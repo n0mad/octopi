@@ -8,21 +8,21 @@ using namespace std;
 class Decoder
 {
 public:
-    Decoder(TModel* model, std::vector<bool>* input, uint32 size);
-    uint32 DecodeTarget(const uint32 total);
+    Decoder(TModel* model, std::vector<bool>* input, int size);
+    uint64 DecodeTarget(const uint64 total);
     void DecodeSequence(std::vector<uint8> &output);
-    void Decode(uint32 low_count, uint32 high_count);
+    void Decode(uint64 low_count, uint64 high_count);
 protected:
     uint8 GetBit();
     uint8 mBitBuffer;
     uint8 mBitCount;
-    uint32 mLow;
-    uint32 mHigh;
-    uint32 mStep;
-    uint32 mScale;
-    uint32 mBuffer;
+    uint64 mLow;
+    uint64 mHigh;
+    uint64 mStep;
+    uint64 mScale;
+    uint64 mBuffer;
     TModel* Model;
     std::vector<bool>* Input;
-    uint32 Size;
+    int Size;
     int Pointer;
 };

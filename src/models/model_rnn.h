@@ -8,13 +8,13 @@ class TModelRNN : public TModel
 {
 public:
     const double LAMBDA = 0.99;
-    const uint32 NORMALIZER = 1e8;//0x7FFFFFFF / 4;//1e6;
+    const uint64 NORMALIZER = 1e8;//0x7FFFFFFF / 4;//1e6;
 
 
 	TModelRNN(const std::string &fileName = "model.json");
-    virtual void Encode(uint8 symbol, uint32 &low_count, uint32 &upper_count, uint32 &total);
-    virtual uint8 Decode(uint32 value, uint32 &lower_count, uint32 &upper_count);
-    virtual uint32 GetNormalizer() {
+    virtual void Encode(uint8 symbol, uint64 &low_count, uint64 &upper_count, uint64 &total);
+    virtual uint8 Decode(uint64 value, uint64 &lower_count, uint64 &upper_count);
+    virtual uint64 GetNormalizer() {
         return NORMALIZER;
     };
     virtual void Observe(uint8 symbol);
@@ -38,7 +38,4 @@ protected:
     std::vector<Eigen::MatrixXd> Biases;
     std::vector<Eigen::MatrixXd> Matrixes;
     std::vector<Eigen::VectorXd> States;
-
-    uint32 Observed;
-
 };

@@ -18,7 +18,7 @@ void Encoder::SetBit(bool bit)
 }
 
 
-void Encoder::Encode(const uint32 low_count, const uint32 high_count, const uint32 total)
+void Encoder::Encode(const uint64 low_count, const uint64 high_count, const uint64 total)
     // total < 2ˆ29
 {
     // partition number space into single steps
@@ -58,7 +58,7 @@ void Encoder::Encode(const uint32 low_count, const uint32 high_count, const uint
 }
 
 void Encoder::Encode(const std::vector<uint8> &input) {
-    uint32 lower, upper, normalizer;
+    uint64 lower, upper, normalizer;
     for(auto c: input) {
         Model->Encode(c, lower, upper, normalizer);
         Encode(lower, upper, normalizer);

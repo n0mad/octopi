@@ -13,12 +13,12 @@ protected:
     // bit operations
     void SetBit(bool bit);
     void SetBitFlush();
-    void Encode(const uint32 low_count, const uint32 high_count, const uint32 total);
+    void Encode(const uint64 low_count, const uint64 high_count, const uint64 total);
 
-    uint32 mLow;
-    uint32 mHigh;
-    uint32 mStep;
-    uint32 mScale;
+    uint64 mLow;
+    uint64 mHigh;
+    uint64 mStep;
+    uint64 mScale;
 
     std::vector<bool> Data;
     TModel* Model;

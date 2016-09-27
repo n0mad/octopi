@@ -12,7 +12,7 @@ void TModelAdaptive::Reset()
 		Probs[i] = 1;
 };
 
-void TModelAdaptive::Encode(uint8 symbol, uint32 &low_count, uint32 &upper_count, uint32 &normalizer)
+void TModelAdaptive::Encode(uint8 symbol, uint64 &low_count, uint64 &upper_count, uint64 &normalizer)
 {
     //cumulate frequencies
     low_count = 0;
@@ -27,7 +27,7 @@ void TModelAdaptive::Encode(uint8 symbol, uint32 &low_count, uint32 &upper_count
     //Probs[symbol] += 1;
 };
 
-uint8 TModelAdaptive::Decode(uint32 value, uint32 &lower_count, uint32 &upper_count)
+uint8 TModelAdaptive::Decode(uint64 value, uint64 &lower_count, uint64 &upper_count)
 {
     uint8 symbol = 0;
     lower_count = 0;
