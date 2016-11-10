@@ -1,6 +1,8 @@
 ## Short Description
 
-This repo contains code of a illustrative text compression/decompression utility oct, powered by a combination of arithmetic coding and character-level recurrent neural networks (RNN). Despite its simplicity, it beats gzip on compressing text files when RNN is trained against the compressed file. Such a capability might be useful is several scenarios, e.g. for storing Wikipedia on a mobile.
+This repo contains code of a illustrative text compression/decompression utility octopi, powered by a combination of arithmetic coding and character-level recurrent neural networks (RNN). Despite its simplicity, it beats gzip on compressing text files when RNN is trained against the compressed file. Such a capability might be useful is several scenarios, e.g. for storing Wikipedia on a mobile.
+
+However, being a proof-of-concept, currently octopi is amazingly slower than gzip & bzip2.
 
 ## Motivation
 
