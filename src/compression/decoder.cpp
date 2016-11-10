@@ -66,7 +66,7 @@ void Decoder::Decode(uint64 low_count, uint64 high_count)
 
 void Decoder::DecodeSequence(vector<uint8> &output) {
     // Fill buffer with bits from the input stream
-    for(int i = 0; i < 39; i++) // just use the 31 least significant bits
+    for(int i = 0; i < g_BitsUsed; i++) // just use the g_BitsUsed least significant bits
         mBuffer = (mBuffer << 1) | GetBit();
     while(output.size() < Size) {
         uint64 low_count = 0, upper_count = 0;
