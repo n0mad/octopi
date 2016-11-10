@@ -6,14 +6,14 @@ This repo contains code of a illustrative text compression/decompression utility
 
 Arithmetic coding is a flexible compression approach that wraps any generative model P(next block | history) to build a compression mechanism. Better the model, better the compression level. One can use simple frequency models that consider the probability of observing a particular B p(B | history) to be equal to the frequency of B in history. While sometimes that might be good enough,  such an approach totally ignores sequential nature of data stream. In particular, that hold in textual data: a capital letter is likely to be observed after a dot and whitespace; 'e' is likely after 'th', and so on. Hopefully, you're convinced!
 
-Recurrent neural nets (''vanilla'' RNN, GRU, and LSTM) proved to be very successful in text modelling. Character-level generative models pre-trained on various sources turned out to be capable of doing amazing stuff () and conquered the web in no time.
+Recurrent neural nets (''vanilla'' RNN, GRU, and LSTM) proved to be very successful in text modelling. Character-level generative models pre-trained on various sources turned out to be capable of doing amazing stuff ( http://karpathy.github.io/2015/05/21/rnn-effectiveness/ ) and conquered the web in no time.
 
-It looks like this is match made in heaven, so I decided to play with character-level nets and arithmetic coding to see if something interesting can emerge.
+It looks like this is a match made in heaven, so I decided to play with character-level nets and arithmetic coding to see if something interesting can emerge.
 
 
 ## How Code Is Organised
 
-The code uses two external libs, plugged as submodules: picojson (C++ lib to parse json) and rnn (re-implementation of char-rnn in keras). The latter is used to train new RNN models if there is a need; if you only plan to play with the models I provide, it is not necessary.
+The code uses three external libs, plugged as submodules: picojson (C++ lib to parse json), Eigen, and rnn (re-implementation of char-rnn in keras). The latter is used to train new RNN models if there is a need; if you only plan to play with the models I provide, it is not necessary.
 
 Further, there are two big, independent parts: the arithmetic coder/decoder (src/compression) and implementations of different models (src/models). The models implemented are: (a) constant model for debug purposes, (b) adaptive frequency model, (c) multi-layer vanilla RNN, and (d) multi-layer GRU.
 
@@ -87,6 +87,9 @@ However, for a 100Mb full Simple Wikipedia (grab it here), that accounts for les
 
 ## Contributors
 Eugene Kharitonov
-firstname.lastname gmail
+firstname.lastname at gmail
+Tania Starikovskaia
+tat last-name at gmail
+
 
 ## Related Work
