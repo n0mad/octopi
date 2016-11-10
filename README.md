@@ -25,8 +25,8 @@ First, checkout the code:
 ```
 git clone https://github.com/n0mad/octopi.git
 cd octopi
-git submodules init
-git submodules update
+git submodule init
+git submodule update
 ```
 and actually build it:
 ```
@@ -42,6 +42,7 @@ Here we compress the README.md file into README.md.oct using 'adaptive' model, w
 ls -lh README.md README.md.oct
 ```
 There should be some difference; on an early version of README.md I obtained 40% compression. Will it be the same after we decompress it? We can compare md5sum-s:
+
 On Mac:
 ```
 ./bin/octopi -d adaptive README.md.oct README.md.new
@@ -85,7 +86,7 @@ However, for a 100Mb full Simple Wikipedia (grab it here), that accounts for les
 
 ## I want to train my own models and use them
 
-## A five-line tutorials of arithmetic coding and recurrent neural networks
+## Five-line tutorials of arithmetic coding and recurrent neural networks
 
 ## Contributors
 Eugene Kharitonov firstname.lastname at gmail
