@@ -21,8 +21,8 @@ Further, there are two big, independent parts: the arithmetic coder/decoder (src
 First, checkout the code:
 
 ```
-git clone git@bitbucket.org:n0mad/octopi-research.git
-cd octopi-research
+git clone https://github.com/n0mad/octopi.git
+cd octopi
 git submodules init
 git submodules update
 ```
@@ -86,10 +86,9 @@ However, for a 100Mb full Simple Wikipedia (grab it here), that accounts for les
 ## A five-line tutorials of arithmetic coding and recurrent neural networks
 
 ## Contributors
-Eugene Kharitonov
-firstname.lastname at gmail
+Eugene Kharitonov firstname.lastname at gmail
+
 Tania Starikovskaia
-tat last-name at gmail
 
 
 ## Related Work
