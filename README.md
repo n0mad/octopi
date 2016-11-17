@@ -84,6 +84,10 @@ However, for a 100Mb full Simple Wikipedia (grab it here), that accounts for les
 
 
 ## I want to train my own models and use them
+In short, one can train a CharRNN model (included as a submodule) and then dump it into a model.json file using the model_dump.py script.
+
+More detailed description to be added.
+
 
 ## Five-line tutorials of arithmetic coding and recurrent neural networks
 
