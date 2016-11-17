@@ -19,6 +19,8 @@ The code uses three external libs, plugged as submodules: picojson (C++ lib to p
 
 Further, there are two big, independent parts: the arithmetic coder/decoder (src/compression) and implementations of different models (src/models). The models implemented are: (a) constant model for debug purposes, (b) adaptive frequency model, (c) multi-layer vanilla RNN, and (d) multi-layer GRU.
 
+The arithmetic coder/decoder part (src/compression) is essentially a refactored code from http://www.cs.umb.edu/~rvetro/vetroBioComp/compression/WittenACM87ArithmCoding.pdf by Willen, Neal, and Clear. The refacting was required to expose the model interface.
+
 ## How can I launch it?
 First, checkout the code:
 
