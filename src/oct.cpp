@@ -107,7 +107,6 @@ void Compress(const string& from, const string& to, TModel* model) {
     ofstream outputStream(to, std::ios::out | std::ios::binary);
     int dataSize = data.size();
     outputStream.write( (char *) &dataSize, sizeof(int)); //not too compatible
-    //outputStream << (uint32) data.size();
     std::copy(output.begin(), output.end(), std::ostreambuf_iterator<char>(outputStream));
 }
 

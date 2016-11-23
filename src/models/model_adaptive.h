@@ -1,5 +1,6 @@
 #pragma once
 #include "./../model_abstract.h"
+
 class TModelAdaptive : public TModel
 {
 public:

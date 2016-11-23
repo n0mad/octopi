@@ -6,7 +6,7 @@ using namespace std;
 Encoder::Encoder(TModel* model)
 {
     mLow = 0;
-    mHigh = g_Max;//0x7FFFFFFFF; // just work with least significant 31 bits
+    mHigh = g_Max;
     mScale = 0;
     mStep = 0;
     Model = model;
@@ -19,7 +19,6 @@ void Encoder::SetBit(bool bit)
 
 
 void Encoder::Encode(const uint64 low_count, const uint64 high_count, const uint64 total)
-    // total < 2ˆ29
 {
     // partition number space into single steps
     mStep = (mHigh - mLow + 1) / total; // interval open at the top => +1

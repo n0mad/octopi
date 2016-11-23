@@ -7,9 +7,8 @@
 class TModelRNN : public TModel
 {
 public:
-    const double LAMBDA = 0.99;
-    const uint64 NORMALIZER = 1e8;//0x7FFFFFFF / 4;//1e6;
-
+    const double LAMBDA = 0.950;
+    const uint64 NORMALIZER = 1e10;
 
 	TModelRNN(const std::string &fileName = "model.json");
     virtual void Encode(uint8 symbol, uint64 &low_count, uint64 &upper_count, uint64 &total);

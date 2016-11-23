@@ -2,7 +2,6 @@
 #include <vector>
 
 class TBytesBits {
-
     std::vector<vector<bool>> Mapping;
 
     public:

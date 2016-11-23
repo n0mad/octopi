@@ -144,8 +144,6 @@ void TModelRNN::UpdateSpace() {
     output.array() -= d;
     auto output2 = output.unaryExpr<double(*)(double)>(&std::exp);
 
-    Space = output2.array() / output2.sum();
-    //Space.array() /= Space.sum();
     Space = output2.array() / output2.sum() * LAMBDA + (1. - LAMBDA) / Space.size();
 };
 

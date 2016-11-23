@@ -21,10 +21,6 @@ void TModelAdaptive::Encode(uint8 symbol, uint64 &low_count, uint64 &upper_count
         low_count += Probs[j];
     upper_count = low_count + Probs[symbol];
     normalizer = Normalizer;
-
-    //update believes
-    //Normalizer += 1;
-    //Probs[symbol] += 1;
 };
 
 uint8 TModelAdaptive::Decode(uint64 value, uint64 &lower_count, uint64 &upper_count)

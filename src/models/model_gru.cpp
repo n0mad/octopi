@@ -104,8 +104,6 @@ void TModelGRU::Encode(uint8 symbol, uint64 &low_count, uint64 &upper_count, uin
     };
 
     double upper_bound = lower_bound + Space[i];
-    //cout << "encoding char: " << Chars[i] << " " << lower_bound << " " << upper_bound << endl;
-    //DumpSpace();
 
     low_count   = (uint64) (NORMALIZER * lower_bound);
     upper_count = (uint64) (NORMALIZER * upper_bound);
@@ -141,8 +139,6 @@ uint8 TModelGRU::Decode(uint64 value, uint64 &lower_count, uint64 &upper_count)
     lower_count   = (uint64) (NORMALIZER * lower_bound);
     upper_count = (uint64) (NORMALIZER * upper_bound);
 
-    //cout << Chars[i] << " " << lower_bound << " " << upper_bound << endl;
-    //DumpSpace();
     return Chars[i];
 };
 
@@ -151,12 +147,11 @@ void TModelGRU::UpdateSpace() {
     VectorXd output = Softmax_W.transpose() * top_layer_state;
     output += Softmax_B;
 
+    //softmax with overflow protection
     double d = output.maxCoeff();
     output.array() -= d;
     auto output2 = output.unaryExpr<double(*)(double)>(&std::exp);
 
-    Space = output2.array() / output2.sum();
-    //Space.array() /= Space.sum();
     Space = output2.array() / output2.sum() * LAMBDA + (1. - LAMBDA) / Space.size();
 };
 
